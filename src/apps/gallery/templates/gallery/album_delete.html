@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SoSiKW | {{ request.user.first_name }} {{ request.user.last_name }} | {% if album %}Edit album{% else %}Create Album{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="fixed inset-0 mt-15 flex justify-between h-full">
+      <!-- Album details section -->
+      <div>
+        <div class="border min-w-[400px] lg:w-[400px] p-2 overflow-y-auto">
+
+          <!-- Header links -->
+          <div class="flex">
+            <a href="{% url 'core:main' %}" class="bg-sky-950 px-4 py-1 text-2xl md:text-3xl text-white font-bold">SoSiKW</a>
+          </div>
+          <!-- Album details form -->
+          <div class="py-4 space-y-4">
+            <p class="p-2 text text-2xl text-sky-950 font-bold">{{ album.title }}</p>
+            {% if post.text %}
+              <p class="p-2 w-full max-h-60">{{ post.text }}</p>
+            {% else %}
+              <p class="p-2 w-full text-gray-500">(Album has no description)</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="m-4 bg-gray-200 rounded-xl">
+          <div class="p-2 text-center">
+            <p class="font-bold">Do you really want to delete this album?</p>
+            <p >Once you delete it, there is no turning back.</p>
+          </div>
+          <form method="POST" class="p-2 flex">
+            {% csrf_token %}
+            <button type="submit" class="w-1/2 py-2 px-3 text-white font-bold bg-sky-700 hover:bg-sky-800 rounded-2xl">
+              Delete
+            </button>
+            <a name="cancel" href="{{ previous_url }}" class="w-1/2 ml-2 py-2 px-3 text-white text-center font-bold bg-red-600 hover:bg-red-700 rounded-2xl">
+              Cancel
+            </a>
+          </form>
+        </div>
+      </div>
+
+      <!-- Image preview -->
+      <div class="w-full overflow-y-auto bg-gray-500">
+        <div id="image-section" class="p-2 w-full grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-4 gap-y-2">
+          {% if album_images %}
+            {% for image in album_images %}
+              <div class="w-full min-w-70 max-h-[500px] min-h-[430px] bg-white">
+                <div class="h-[390px] bg-white">
+                  <div class="grid size-fit h-full justify-items-center items-center">
+                    <img src="{{ image.image.url }}" class="border-b max-h-[390px]">
+                  </div>
+                </div>
+                <hr>
+                {% if image.description %}
+                  <p class="flex w-full p-2 w-full max-h-24 overflow-auto">{{ image.description }}</p>
+                {% else %}
+                  <p class="flex w-full p-2 w-full max-h-24 text-gray-500">(The photo has no description)</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>SoSiKW | {{ request.user.first_name }} {{ request.user.last_name }} | {% if album %}Edit album{% else %}Create Album{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    {% if album %}
+      <script src="{% static 'js/apps/gallery/album_edit.js' %}"></script>
+    {% else %}
+      <script src="{% static 'js/apps/gallery/album_create.js' %}"></script>
+    {% endif %}
+  </head>
+  <body>
+    {% if album %}
+      <p class="urlDataContainer hidden"
+         data-url-upload="{% url 'gallery:album_edit_upload_temp_images' album.uuid_url %}"
+         data-url-delete-one-temp="/gallery/albums/{{ album.uuid_url }}/edit/delete_temp_images/"
+         data-url-delete-all-temp="{% url 'gallery:album_edit_delete_all_temp_images' album.uuid_url %}"
+         data-url-toggle-image-status="/gallery/albums/{{ album.uuid_url }}/edit/album_image_status/"></p>
+    {% else %}
+      <p class="urlDataContainer"
+         data-url-upload="{% url 'gallery:album_create_upload_temp_images' %}"
+         data-url-delete-one-temp="/gallery/albums_create/delete_temp_images/"
+         data-url-delete-all-temp="{% url 'gallery:album_create_delete_all_temp_images' %}"></p>
+    {% endif %}
+    <div class="fixed inset-0 mt-15 flex justify-between h-full">
+      <!-- Album details section -->
+      <form method="POST" id="albumForm" action="" enctype="multipart/form-data" class="border min-w-[400px] lg:w-[400px] p-2 overflow-y-auto">
+        {% csrf_token %}
+        <!-- Header links -->
+        <div class="flex justify-between">
+          <a href="{% url 'core:main' %}" class="bg-sky-950 px-4 py-1 text-2xl md:text-3xl text-white font-bold">SoSiKW</a>
+            {% if album %}
+              <button name="cancel" value="cancel" type="submit" title="Cancel editing album" class="size-10">
+                <img src="{% static 'images/gallery_icons/close_button.png' %}">
+              </button>
+            {% else %}
+              <button name="cancel" value="cancel" type="submit" title="Cancel album creation" class="size-10">
+                <img src="{% static 'images/gallery_icons/close_button.png' %}">
+              </button>
+            {% endif %}
+        </div>
+        <!-- Album details form -->
+        <div class="py-4 space-y-4">
+          <div>
+            <p class="p-2 text text-xl">Album title</p>
+            <input type="text" name="title" value="{% if album %}{{ album.title }}{% endif %}" class="p-2 w-full bg-gray-100 rounded-2xl text-gray-800">
+          </div>
+          <div>
+            <p class="p-2 text text-xl">Description</p>
+            <textarea name="text" placeholder="Album description (optional)" class="p-2 w-full min-h-24 max-h-80 bg-gray-100 rounded-2xl text-gray-800">{% if post %}{{ post.text }}{% endif %}</textarea>
+          </div>
+          <div class="flex space-x-8 items-center">
+            <label for="is_public">Who can see this album:</label>
+            <select id="is_public" name="is_public" class="p-1 w-40">
+              {% if post %}
+                <option value="1" {% if post.is_public %}selected{% endif %}>Everyone</option>
+                <option value="0"{% if not post.is_public %}selected{% endif %}>Friends only</option>
+              {% else %}
+                <option value="1" selected>Everyone</option>
+                <option value="0">Friends only</option>
+              {% endif %}
+            </select>
+          </div>
+          <hr>
+          <div class="flex space-x-2 items-center">
+            {% if album %}
+              <input type="checkbox" name="is_private" class="size-5" {% if album.is_private %}checked{% endif %}>
+            {% else %}
+              <input type="checkbox" name="is_private" class="size-5">
+            {% endif %}
+            <p>Set album as private</p>
+            <p class="pl-2 text hover:text-gray-400" title="Private albums are visible only for you">(?)</p>
+          </div>
+          <button name="create_album" value="create_album" type="submit" class="w-full py-2 px-3 text-white font-bold bg-sky-700 hover:bg-sky-800 rounded-2xl text-gray-800">Save album</button>
+        </div>
+        <hr>
+
+        <div id="images-info" class="flex">
+          <p class="pr-2">*</p>
+          <p>Album without images will not be presented as post and will be invisible to other users.</p>
+        </div>
+
+        <div id="hidden-inputs-container">
+          {% if album_images %}
+            {% for image in album_images %}
+              <input type="hidden" name="album_img_description_{{ image.id }}" value="{% if image.description %}{{ image.description }}{% endif %}">
+            {% endfor %}
+          {% endif %}
+          {% for image in temporary_images %}
+            <input type="hidden" name="temp_img_description_{{ image.id }}" value="">
+          {% endfor %}
+        </div>
+      </form>
+
+      <!-- Image preview -->
+      <div class="w-full overflow-y-auto bg-gray-500">
+        <div class="flex px-2 gap-x-2">
+          <label for="id_image" class="w-30 py-1 px-2 font-bold bg-gray-200 hover:bg-sky-700 rounded-xl hover:text-white">
+            Add photos
+          </label>
+          <input type="file" multiple id="id_image" name="images" class="hidden">
+          <button type="button" id="remove-all-temp-images-btn" class="w-30 py-1 px-2 font-bold bg-gray-200 hover:bg-sky-700 rounded-xl hover:text-white">Remove new images</button>
+        </div>
+        <div id="image-section" class="p-2 w-full grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-4 gap-y-2">
+          {% if album_images %}
+            {% for image in album_images %}
+              {% if not image.edit_to_delete %}
+                <!-- Preview of image that will be kept -->
+                <div class="image-container w-full min-w-70 h-[500px] bg-white">
+                  <div class="h-[390px] bg-white relative">
+                    <div class="grid size-fit h-full justify-items-center items-center">
+                      <img src="{{ image.image.url }}" class="border-b max-h-[390px]">
+                    </div>
+                    <button data-id="{{ image.id }}" title="Delete existing image" class="delete-album-image-btn p-1 text text-sm font-bold rounded-lg bg-red-500 border border-2 border-black absolute top-2 right-2">
+                      Delete
+                    </button>
+                  </div>
+                  <div class="image-description-section p-2 h-[110px] flex w-full justify-center items-center">
+                    <textarea name="album_img_description_{{ image.id }}" placeholder="Image description (optional)" class="album-img-description p-2 w-full min-h-24 max-h-16 bg-gray-100 rounded-2xl text-gray-800 resize-none">{% if image.description %}{{ image.description }}{% endif %}</textarea>
+                    <p class="p-2 text text-xl font-bold rounded-2xl hidden">Image to delete</p>
+                  </div>
+                </div>
+              {% else %}
+                <!-- Preview of image that will be deleted -->
+                <div class="image-container w-full min-w-70 h-[500px] bg-white">
+                  <div class="h-[390px] bg-white relative">
+                    <div class="grid size-fit h-full justify-items-center items-center">
+                      <img src="{{ image.image.url }}" class="border-b opacity-40 max-h-[390px]">
+                    </div>
+                    <button data-id="{{ image.id }}" title="Keep image" class="keep-album-image-btn p-1 text text-sm font-bold rounded-lg bg-green-500 border border-2 border-black absolute top-2 right-2">
+                      Keep
+                    </button>
+                  </div>
+                  <div class="image-description-section p-2 h-[110px] flex w-full justify-center items-center bg-red-500">
+                    <textarea name="album_img_description_{{ image.id }}" placeholder="Image description (optional)" class="album-img-description p-2 w-full min-h-24 max-h-16 bg-gray-100 rounded-2xl text-gray-800 resize-none hidden">{% if image.description %}{{ image.description }}{% endif %}</textarea>
+                    <p class="p-2 text text-xl font-bold rounded-2xl">Image to delete</p>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% for image in temporary_images %}
+            <div class="temp-image-container w-full min-w-70 h-[500px] bg-white">
+              <div class="h-[390px] bg-white relative">
+                <div class="grid size-fit h-full justify-items-center items-center">
+                  <img src="{{ image.image.url }}" class="border-b max-h-[390px]">
+                </div>
+                <button data-id="{{ image.id }}" title="Delete temporary image" class="delete-temp-image-btn p-1 text text-sm font-bold rounded-lg bg-red-500 border border-2 border-black absolute top-2 right-2">
+                  Delete
+                </button>
+                {% if album %}
+                  <p class="absolute font-sm p-1 bg-gray-200 border border-2 top-0 left-0">New</p>
+                {% endif %}
+              </div>
+              <div class="p-2">
+                <textarea name="temp_img_description_{{ image.id }}" placeholder="Image description (optional)" class="temp-img-description p-2 w-full min-h-24 max-h-16 bg-gray-100 rounded-2xl text-gray-800 resize-none"></textarea>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

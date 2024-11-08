@@ -1,0 +1,115 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} | {% if not post %}Create post{% else %}Edit post{% endif %}{% endblock title %}
+
+{% block content %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  {% if post %}
+    <script src="{% static 'js/apps/posts/post_edit.js' %}"></script>
+    <p class="urlDataContainer hidden"
+       data-url-upload="{% url 'posts:post_edit_upload_temp_images' request.user.site_url post.id %}"
+       data-url-delete-one-temp="/{{ request.user.site_url }}/posts/{{ post.id }}/edit/delete_temp_images/"
+       data-url-delete-all-temp="{% url 'posts:post_edit_delete_all_temp_images' request.user.site_url post.id %}"
+       data-url-toggle-image-status="/{{ request.user.site_url }}/posts/{{ post.id }}/edit/post_image_status/"></p>
+  {% else %}
+    <script src="{% static 'js/apps/posts/post_create.js' %}"></script>
+    <p class="urlDataContainer hidden"
+       data-url-upload="{% url 'posts:post_create_upload_temp_images' request.user.site_url %}"
+       data-url-delete-one-temp="/{{ request.user.site_url }}/posts/create/delete_temp_images/"
+       data-url-delete-all-temp="{% url 'posts:post_create_delete_all_temp_images' request.user.site_url %}"></p>
+  {% endif %}
+  <div class="mx-auto min-w-[450px] w-[700px] h-full overflow-y-auto">
+    <div class="p-4 mb-1 rounded-md bg-white border border-gray-200 border-2">
+      <form method="POST" id="postForm" enctype="multipart/form-data" data-site-url="{{ request.user.site_url|escapejs }}">
+        {% csrf_token %}
+        <div class="flex items-center">
+          <div class="h-14 w-14 border rounded-full mr-4">
+            {% with request.user as icon_user %}
+              {% include 'gallery/user_main_image_icon.html' %}
+            {% endwith %}
+          </div>
+          <div>
+            <h1 class="text font-bold">{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+          </div>
+        </div>
+        <div class="py-4">
+          <textarea id="description-input-field" name="text" class="p-2 pl-4 w-full h-24 min-h-16 max-h-80 bg-gray-100 rounded-2xl text-gray-800">{% if post.text %}{{ post.text }}{% else %}{{ post_text_data }}{% endif %}</textarea>
+        </div>
+
+        <div class="flex pb-2 justify-right gap-x-2 items-center">
+          <label for="id_image" class="py-1 px-2 rounded-2xl bg-amber-300 hover:bg-amber-400">
+            Add photos
+          </label>
+          <input type="file" multiple id="id_image" name="images" class="hidden">
+          <button type="button" id="remove-all-temp-images-btn" class="py-1 px-2 rounded-2xl bg-amber-300 hover:bg-amber-400">Remove all photos</button>
+        </div>
+        <hr>
+        <div class="flex pt-2 space-x-4 items-center">
+          <label for="is_public">Who can see this album:</label>
+          <select id="is_public" name="is_public" class="p-1 w-40">
+            {% if post %}
+              <option value="1" {% if post.is_public %}selected{% endif %}>Everyone</option>
+              <option value="0"{% if not post.is_public %}selected{% endif %}>Friends only</option>
+            {% else %}
+              <option value="1" selected>Everyone</option>
+              <option value="0">Friends only</option>
+            {% endif %}
+          </select>
+          <input type="hidden" name="is_visible" value="True">
+        </div>
+        <div class="flex pt-4">
+          <button name="add_post" value="add_post" type="submit" class="w-3/4 py-2 px-3 text-white font-bold bg-sky-700 hover:bg-sky-800 rounded-2xl">
+            {% if not post %}Create Post{% else %}Save post{% endif %}
+          </button>
+          <button name="cancel" value="cancel" type="submit" class="w-1/4 ml-2 py-2 px-3 text-white font-bold bg-red-600 hover:bg-red-700 rounded-2xl">
+            Cancel
+          </button>
+        </div>
+      </form>
+      {% if messages %}
+        <ul id="message-section" class="messages mt-2">
+            {% for message in messages %}
+            <li class="mx-auto p-2 bg-red-200 text-center font-bold rounded-2xl border border-red-800"> {{ message }} </li>
+            {% endfor %}
+        </ul>
+      {% endif %}
+
+      <div id="image-section" class="w-full  pt-4 grid grid-cols-3 gap-2 items-center justify-items-center">
+        {% if post_images %}
+          {% for image in post_images %}
+            {% if not image.edit_to_delete %}
+              <div class="image-container place-content-center flex relative border border-gray-400 bg-gray-400">
+                <img src="{{ image.image.url }}" class="max-h-60 ">
+                <button title="Delete existing image" data-id="{{ image.id }}" class="delete-post-image-btn p-1 text text-sm font-bold rounded-lg bg-red-500 border border-2 border-black absolute top-2 right-2">
+                  Delete
+                </button>
+              </div>
+            {% else %}
+              <div class="image-container place-content-center flex relative border border-gray-400 bg-gray-400">
+                <img src="{{ image.image.url }}" class="max-h-60 opacity-40">
+                <button title="Keep image" data-id="{{ image.id }}" class="keep-post-image-btn p-1 text text-sm font-bold rounded-lg bg-green-500 border border-2 border-black absolute top-2 right-2">
+                  Keep
+                </button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        {% if temporary_images %}
+          {% for image in temporary_images %}
+            <div class="temp-image-container place-content-center flex relative border border-gray-400 bg-gray-400">
+              <img src="{{ image.image.url }}" class="max-h-60 ">
+              <button title="Delete temporary image" data-id="{{ image.id }}" class="delete-temp-image-btn p-1 text text-sm font-bold rounded-lg bg-red-500 border border-2 border-black absolute top-2 right-2">
+                Delete
+              </button>
+              {% if post %}
+                <p class="absolute font-sm p-1 bg-gray-200 border border-2 top-0 left-0">New</p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

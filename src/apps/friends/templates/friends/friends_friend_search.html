@@ -1,0 +1,62 @@
+{% extends 'friends/base_friends_view.html' %}
+{% load static %}
+
+{% block title %} | Friends | Find new friend{% endblock title %}
+
+{% block page_scripts %}
+  <script src="{% static 'js/apps/friends/friends_search.js' %}"></script>
+{% endblock page_scripts %}
+
+
+{% block innercontent %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <p class="urlDataContainer hidden"
+   data-send-friend-request="/friends/send_request/"
+   data-friendship-requests="{% url 'friends:friends_requests_sent_view' %}"
+   data-url-search-result="{% url 'friends:friends_search_result' %}"
+   data-url-avatar-male="{% static 'images/gallery_icons/avatar-male.png' %}"
+   data-url-avatar-female="{% static 'images/gallery_icons/avatar-female.png' %}"
+   data-url-avatar-default="{% static 'images/gallery_icons/avatar-default.png' %}"></p>
+  <div class="flex justify-between">
+    <p class="text-2xl font-bold text-sky-950">New users</p>
+    <div id="search-content" class="relative">
+      <form id="friends-search-form" class="flex pt-2 pb-4 space-x-2">
+        {% csrf_token %}
+        <input type="text" id="friends-search-input" placeholder="Search for user" autocomplete="off" class="p-2 w-[500px] h-12 border border-gray-600 rounded-xl">
+      </form>
+      <div id="results-box" class="ml-2 w-[500px] max-h-80 bg-white rounded-b-xl shadow-xl shadow-sky-950 absolute top-14 overflow-auto">
+      </div>
+    </div>
+  </div>
+  <div id="requests-list-section" class="grid grid-cols-5 gap-x-4 gap-y-6">
+    {% if all_users %}
+      {% for friend in all_users_info %}
+        <div class="user-container">
+          <div class="friend-request-container w-full p-2 border rounded-t-xl hover:shadow-xl">
+            <a href="{% url 'account:profile_main_view' friend.user.site_url %}" class="w-full hover:underline hover:underline-offset-2">
+              <div class="aspect-square rounded-xl border-2">
+                {% with friend.user as icon_user %}
+                  {% include 'gallery/user_main_image_icon_square.html' %}
+                {% endwith %}
+              </div>
+              <p class="p-1 font-bold text-center">{{ friend.user.first_name }} {{ friend.user.last_name }}</p>
+            </a>
+          </div>
+          <div class="request-btn-container p-2 pt-4 border rounded-b-xl">
+            {% if friend.request_info == 'sent' %}
+              <button onclick="location.href='{% url 'friends:friends_requests_sent_view' %}'" title="Manage requests" class="w-full p-2 bg-orange-700 rounded-md font-bold text-white hover:bg-orange-800">Request was sent</button>
+            {% elif friend.request_info == 'received' %}
+              <button onclick="location.href='{% url 'friends:friends_requests_received_view' %}'" title="Manage requests" class="w-full p-2 bg-lime-700 rounded-md font-bold text-white hover:bg-lime-900">Request was received</button>
+            {% else %}
+              <button data-user-id="{{ friend.user.id }}" class="send-request-btn w-full p-2 bg-sky-700 rounded-md font-bold text-white hover:bg-sky-950">Send friend request</button>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="p-4 text lg:text-xl text-center bg-gray-300 rounded-xl">
+        <p>There are no pending invitations.</p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock innercontent %}

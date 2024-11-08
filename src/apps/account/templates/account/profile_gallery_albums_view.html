@@ -1,0 +1,46 @@
+{% extends 'account/profile_base.html' %}
+{% load static %}
+
+{% block title %} | {{ user.first_name }} {{ user.last_name }} | Gallery{% endblock title %}
+
+{% block innercontent %}
+  <div class="p-4 bg-white rounded-xl border border-gray-200">
+    {% include 'gallery/gallery_navbar.html' %}
+    <hr>
+    {% if user.albums.all.count %}
+      <div class="pt-2 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+        {% for album in user.albums.all %}
+          <a href="{% url 'gallery:album_preview' uuid_url=album.uuid_url %}" class="w-full hover:underline hover:underline-offset-2">
+            <div class="aspect-square rounded-lg border bg-gray-200 relative">
+              {% if album.post.images.count > 1 %}
+                <div class="w-full grid grid-cols-2 gap-1">
+                  {% for image in album.post.images.all|slice:":4" %}
+                    <div class="flex size-fit rounded-lg border border-gray-400">
+                      <img src="{{ image.image.url }}" class="aspect-square rounded-lg object-cover">
+                    </div>
+                  {% endfor %}
+                </div>
+              {% elif album.post.images.count == 1 %}
+                <div class="flex size-fit rounded-lg border">
+                  <img src="{{ album.post.images.all.0.image.url }}" class="aspect-square rounded-lg object-cover">
+                </div>
+              {% else %}
+                <div class="grid place-content-center h-full">
+                  <img src="{% static 'images/gallery_icons/no-pictures.png' %}">
+                </div>
+              {% endif %}
+              {% if album.is_private %}
+                <p class="absolute font-sm p-1 bg-gray-200 border border-2 border-gray-400 top-0 left-0 rounded-lg">Priv</p>
+              {% endif %}
+            </div>
+            <p class="rounded-lg font-bold">{{ album.title }}</p>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="w-full">
+          <p class="px-2 pt-2 font-bold">Gallery is empty.</p>
+        </div>
+    {% endif %}
+  </div>
+{% endblock innercontent %}

@@ -1,0 +1,48 @@
+{% extends 'account/profile_base.html' %}
+{% load static %}
+
+{% block title %} | {{ user.first_name }} {{ user.last_name }} | Friends{% endblock title %}
+
+{% block innercontent %}
+  <p id="friends_data_json" class="hidden"
+     data-friends-data-json="{{ user_friends_json }}"
+     data-url-avatar-male="{% static 'images/gallery_icons/avatar-male.png' %}"
+     data-url-avatar-female="{% static 'images/gallery_icons/avatar-female.png' %}"
+     data-url-avatar-default="{% static 'images/gallery_icons/avatar-default.png' %}"></p>
+  <div class="p-4 bg-white rounded-xl border border-gray-200">
+    <div class="pb-4 flex justify-between items-center">
+      <h1 class="text text-4xl text-sky-950 font-bold">Friends</h1>
+      <div class="flex space-x-2 items-center">
+        {% if user == request.user %}
+          {% if awaiting_friends_requests %}
+            <a href="{% url 'friends:friends_requests_received_view' %}" title="Unanswered friend requests" class="size-10 p-1 bg-red-700 rounded-full text-xl text-center text-white font-bold hover:text-white hover:bg-red-600">{{ awaiting_friends_requests }}</a>
+          {% endif %}
+          <a href="{% url 'friends:friends_all_view' %}" class="p-2 bg-orange-400 hover:bg-orange-500 rounded-xl">Manage friends</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="flex pt-2 pb-4 space-x-2">
+      <input type="text" id="friend_search" placeholder="Search for a user among {{ request.user.first_name }}'s friends" class="p-2 w-[350px] border border-gray-600 rounded-xl">
+      <button class="py-2 px-3 bg-gray-200 hover:bg-gray-300 rounded-xl">Search</button>
+    </div>
+    <hr>
+    <div class="mt-2 h-full overflow-y-auto">
+      <div id="all_friends_container" class="grid grid-cols-6 gap-2">
+        {% for friend in user_friends %}
+          <a id="{{ friend.id }}" href="{% url 'account:profile_main_view' friend.site_url %}" class="w-full hover:underline hover:underline-offset-2">
+            <div class="aspect-square rounded-xl border-2">
+              {% with friend as icon_user %}
+                {% include 'gallery/user_main_image_icon_square.html' %}
+              {% endwith %}
+            </div>
+            <p class="p-1 font-bold">{{ friend.first_name }} {{ friend.last_name }}</p>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/apps/account/profile_friends_find_friend.js' %}"></script>
+
+{% endblock innercontent %}

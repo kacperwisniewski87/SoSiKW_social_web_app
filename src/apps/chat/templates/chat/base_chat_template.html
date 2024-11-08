@@ -1,0 +1,71 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %} | Chat{% endblock title %}
+
+{% block content %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <p class="urlDataContainer hidden"
+     data-room-uuid-url="{{ chat_room.uuid_url }}"
+     data-room-id="{{ chat_room.id }}"
+     data-url-search-result="{% url 'chat:add_to_group_chat_search_result' %}"
+     data-url-create-group-chat="{% url 'chat:create_group_chat' %}"
+     data-url-avatar-male="{% static 'images/gallery_icons/avatar-male.png' %}"
+     data-url-avatar-female="{% static 'images/gallery_icons/avatar-female.png' %}"
+     data-url-avatar-default="{% static 'images/gallery_icons/avatar-default.png' %}"
+     data-url-remove-button-img="{% static 'images/gallery_icons/remove_button.png' %}"
+     data-rooms-data-json="{{ chat_rooms_json }}"></p>
+  <div class="fixed inset-0 mt-16">
+    <div class="flex w-full h-full">
+      <!--  chat navbar  -->
+      <div class="flex flex-col min-w-[400px] m-2 px-4 py-2 rounded-lg bg-white border border-gray-200">
+        <p class="pb-2 text-xl text-sky-950 font-bold">Search for chat</p>
+        <input type="text" id="chat-room-search-input" placeholder="Type user or group chat name" class="flex w-full bg-gray-100 p-2 mb-2 rounded-xl">
+        <hr>
+        <div id="navbar-rooms-section" class="h-full space-y-3 my-2 overflow-y-auto">
+          {% for room in chat_rooms %}
+            <a id="navbar-room-container-{{ room.chat_id }}" href="{% url 'chat:room_detail_view' room.chat_uuid_url %}" data-room-id="{{ room.chat_id }}" data-room-img="{{ room.chat_image_url }}" class="flex space-x-2 w-full py-2 px-3 rounded-xl border {% if room.chat_uuid_url == chat_room.uuid_url %}bg-amber-400{% else %}bg-gray-100 hover:bg-gray-300{% endif %}">
+              <div class="size-12 min-w-12">
+                <img src="{{ room.chat_image_url }}" class="size-fit aspect-square rounded-full object-cover">
+              </div>
+              <div class="w-full">
+                <div class="flex justify-between">
+                  {% if room.chat_is_user_deleted %}
+                    <p title="{{ room.chat_name }} [Deleted]" class="text-lg text-gray-600">{{ room.chat_name|smart_truncate:15 }} <span class="text-sm">[Deleted]</span></p>
+                  {% else %}
+                    <p id="navbar-room-container-{{ room.chat_id }}-name" title="{{ room.chat_name }}" class="text-lg font-bold">{{ room.chat_name|smart_truncate:25 }}</p>
+                  {% endif %}
+                </div>
+                {% if room.chat_date_last_message %}
+                  <p class="text-sm {% if room.is_new_message %}font-bold{% else %}text-gray-700{% endif %}">[{{ room.chat_last_message_user_name }}] {{ room.chat_last_message_content|smart_truncate:25 }}</p>
+                {% else %}
+                  <p class="text-sm text-gray-700">Start conversation</p>
+                {% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+        <hr>
+        <div class="mt-2">
+          <button id="create-group-chat" class="w-full p-2 bg-gray-300 rounded-xl hover:bg-gray-400 hover:font-bold">Create group chat</button>
+        </div>
+      </div>
+      <!--  Main content  -->
+      <div class="w-full m-2 rounded-lg bg-white border border-gray-200">
+        {% block innercontent %}
+        {% endblock innercontent %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block modal_message %}
+  <div id="curtain-screen" class="hidden w-full h-full z-10 bg-gray-600 opacity-50 absolute top-0 left-0">
+  </div>
+
+  <div id="hud-message" class="hidden z-20 min-w-[450px] w-[700px] p-6 rounded-2xl bg-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+  </div>
+
+  <script src="{% static 'js/apps/chat/basic_rooms_management.js' %}"></script>
+{% endblock modal_message %}

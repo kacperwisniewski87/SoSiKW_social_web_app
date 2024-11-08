@@ -1,0 +1,39 @@
+{% load static %}
+
+<div class="relative inline-block">
+  <button id="dropdown-button-{{ chat_room.id }}" type="button" title="Options">
+    <img src="{% static 'images/gallery_icons/dots.png' %}" class="aspect-square rounded-lg object-cover size-8 border shadow-lg hover:shadow-inner">
+  </button>
+  <div id="dropdown-menu-{{ chat_room.id }}" class="hidden flex flex-col w-28 absolute z-[1] right-0 rounded-md border border-gray-300 bg-white shadow-md">
+    <button id="add-person-hud-open-btn" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+      Add person
+    </button>
+    <button id="rename-chat-hud-open-btn" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+      Rename chat
+    </button>
+    <hr>
+    <button id="leave-chat-hud-open-btn" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+      Leave chat
+    </button>
+  </div>
+</div>
+
+
+<script>
+  document.addEventListener('click', function(event) {
+    var dropdownButton = document.getElementById('dropdown-button-{{ chat_room.id }}');
+    var dropdownMenu = document.getElementById('dropdown-menu-{{ chat_room.id }}');
+
+    var isClickInsideButton = dropdownButton.contains(event.target);
+    var isClickInsideMenu = dropdownMenu.contains(event.target);
+
+    if (!isClickInsideButton && !isClickInsideMenu) {
+        dropdownMenu.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('dropdown-button-{{ chat_room.id }}').addEventListener('click', function() {
+    var dropdownMenu = document.getElementById('dropdown-menu-{{ chat_room.id }}');
+    dropdownMenu.classList.toggle('hidden');
+  });
+</script>

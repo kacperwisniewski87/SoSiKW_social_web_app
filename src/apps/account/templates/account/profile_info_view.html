@@ -1,0 +1,41 @@
+{% extends 'account/profile_base.html' %}
+{% load static %}
+
+{% block title %} | {{ user.first_name }} {{ user.last_name }} | Info{% endblock title %}
+
+{% block innercontent %}
+  <div class="p-4 bg-white rounded-xl border border-gray-200">
+    <div class="flex justify-between">
+      <h1 class="text text-4xl text-sky-950 font-bold">Info</h1>
+      {% if user == request.user %}
+        <a href="{% url 'account:profile_info_edit_view' user.site_url %}" title="Edit" class="p-2 h-10 rounded-full border shadow-lg hover:shadow-inner">
+          <img src="{% static 'images/gallery_icons/dots.png' %}" class="size-6">
+        </a>
+      {% endif %}
+    </div>
+    <div class="space-y-2 mt-4">
+      <div class="flex border border-gray-300 rounded-xl">
+        <p class="p-4 w-40 overflow-auto border-r border-gray-300 text-lg text-sky-950 font-bold bg-gray-200 rounded-l-xl">Bio:</p>
+        <p class="p-4 max-h-80">{% if user.data.bio %}{{ user.data.bio }}{% else %}-{% endif %}</p>
+      </div>
+      <div class="flex gap-4 w-full">
+        <div class="flex w-1/2 border border-gray-300 rounded-xl">
+          <p class="p-4 w-40 border-r border-gray-300 text-lg text-sky-950 font-bold bg-gray-200 rounded-l-xl">Date of birth:</p>
+          <p class="p-4">{% if user.data.date_of_birth %}{{ user.data.date_of_birth|date:"d . m . Y" }}{% else %}-{% endif %}</p>
+        </div>
+        <div class="flex w-1/2 border border-gray-300 rounded-xl">
+          <p class="p-4 w-40 border-r border-gray-300 text-lg text-sky-950 font-bold bg-gray-200 rounded-l-xl">Gender:</p>
+          <p class="p-4">{% if user.data.gender %}{{ user.data.gender|capfirst }}{% else %}-{% endif %}</p>
+        </div>
+      </div>
+      <div class="flex border border-gray-300 rounded-xl">
+        <p class="p-4 w-40 border-r border-gray-300 text-lg text-sky-950 font-bold bg-gray-200 rounded-l-xl">Place of living:</p>
+        <p class="p-4">{% if user.data.place_of_live %}{{ user.data.place_of_live|capfirst }}{% else %}-{% endif %}</p>
+      </div>
+      <div class="flex border border-gray-300 rounded-xl">
+        <p class="p-4 w-40 border-r border-gray-300 text-lg text-sky-950 font-bold bg-gray-200 rounded-l-xl">Occupation:</p>
+        <p class="p-4">{% if user.data.occupation %}{{ user.data.occupation|capfirst }}{% else %}-{% endif %}</p>
+      </div>
+    </div>
+  </div>
+{% endblock innercontent %}

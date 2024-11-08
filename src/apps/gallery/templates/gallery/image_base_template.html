@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SoSiKW | {{ request.user.first_name }} {{ request.user.last_name }}{% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="fixed inset-0 mt-15">
+      <div class="flex justify-between h-full">
+        <!-- Image details navbar -->
+        <div class="border min-w-[400px] lg:w-[400px] p-2 overflow-y-auto">
+          <!-- Data header -->
+          <div class="flex justify-between">
+            <!-- User data -->
+            <div class="flex items-center">
+              <a href="{% url 'account:profile_main_view' site_url=image.user.site_url %}" class="h-14 w-14 border rounded-full mr-4 hover:contrast-75">
+                {% with image.user as icon_user %}
+                  {% include 'gallery/user_main_image_icon.html' %}
+                {% endwith %}
+              </a>
+              <div>
+                <a href="{% url 'account:profile_main_view' site_url=image.user.site_url %}" class="text text-xl font-bold hover:underline hover:underline-offset-3">{{ image.user.first_name }} {{ image.user.last_name }}</a>
+                <p class="text-xs">{{ image.post.published_date }}</p>
+              </div>
+            </div>
+
+            {% block option_button %}{% endblock %}
+
+          </div>
+
+          {% block navbar_content %}{% endblock %}
+
+        </div>
+
+        <!-- Image preview -->
+        <div class="w-full flex overflow-y-auto bg-gray-950 items-center place-content-center relative">
+          <img src="{{ image.image.url }}" class="mx-auto max-h-svh">
+
+          {% block image_control_buttons %}{% endblock %}
+
+        </div>
+      </div>
+    </div>
+
+    {% block control_scripts %}{% endblock %}
+
+  </body>
+</html>

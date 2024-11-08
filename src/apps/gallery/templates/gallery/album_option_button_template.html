@@ -1,0 +1,35 @@
+{% load static %}
+{% if user == request.user %}
+  <div class="relative inline-block">
+    <button id="dropdown-button-{{ album.id }}" type="button" title="Options">
+      <img src="{% static 'images/gallery_icons/dots.png' %}" class="aspect-square rounded-lg object-cover size-8 border shadow-lg hover:shadow-inner">
+    </button>
+    <div id="dropdown-menu-{{ album.id }}" class="hidden flex flex-col w-20 absolute z-[1] right-0 mt-1 rounded-md border border-gray-300 bg-white shadow-md">
+      <a href="{% url 'gallery:album_edit' uuid_url=album.uuid_url %}" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+        Edit
+      </a>
+      <a href="{% url 'gallery:album_delete' uuid_url=album.uuid_url %}" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+        Delete
+      </a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('click', function(event) {
+      var dropdownButton = document.getElementById('dropdown-button-{{ album.id }}');
+      var dropdownMenu = document.getElementById('dropdown-menu-{{ album.id }}');
+
+      var isClickInsideButton = dropdownButton.contains(event.target);
+      var isClickInsideMenu = dropdownMenu.contains(event.target);
+
+      if (!isClickInsideButton && !isClickInsideMenu) {
+          dropdownMenu.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('dropdown-button-{{ album.id }}').addEventListener('click', function() {
+      var dropdownMenu = document.getElementById('dropdown-menu-{{ album.id }}');
+      dropdownMenu.classList.toggle('hidden');
+    });
+  </script>
+{% endif %}

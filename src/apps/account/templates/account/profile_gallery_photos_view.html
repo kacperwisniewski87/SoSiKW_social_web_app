@@ -1,0 +1,26 @@
+{% extends 'account/profile_base.html' %}
+{% load static %}
+
+{% block title %} | {{ user.first_name }} {{ user.last_name }} | Gallery{% endblock title %}
+
+{% block innercontent %}
+  <div class="p-4 bg-white rounded-xl border border-gray-200">
+    {% include 'gallery/gallery_navbar.html' %}
+    <hr>
+    {% if images.count %}
+      <div class="pt-2 w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+        {% for image in images %}
+          <a href="{% url 'gallery:image_preview' image_id=image.id post_type='a' post_id=image.post.id %}">
+            <div class="flex size-fit rounded-lg border">
+              <img src="{{ image.image.url }}" class="aspect-square rounded-lg object-cover">
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+        <div class="w-full">
+          <p class="px-2 pt-2 font-bold">Gallery is empty.</p>
+        </div>
+    {% endif %}
+  </div>
+{% endblock innercontent %}

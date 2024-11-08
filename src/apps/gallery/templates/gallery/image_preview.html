@@ -1,0 +1,87 @@
+{% extends 'gallery/image_base_template.html' %}
+{% load static %}
+
+{% block option_button %}
+  <!-- Options button -->
+  {% if image.user == request.user %}
+    <div class="relative inline-block">
+      <button id="dropdown-button" type="button">
+        <img src="{% static 'images/gallery_icons/dots.png' %}" class="aspect-square rounded-lg object-cover size-8 shadow-lg hover:shadow-inner">
+      </button>
+      <div id="dropdown-menu" class="hidden flex flex-col w-16 absolute z-[1] right-0 mt-1 rounded-md border border-gray-300 bg-white shadow-md">
+        <a href="{% url 'gallery:image_edit' image_id=image.id post_type=post_type post_id=image.post.id %}" class="w-16 text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+          Edit
+        </a>
+        <a href="{% url 'gallery:image_delete' image_id=image.id post_type=post_type post_id=image.post.id %}" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+          Delete
+        </a>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block navbar_content %}
+  <!-- Image description -->
+  <p class="py-4 px-2 min-h-14">
+    {% if image_description %}
+      {{ image_description }}
+    {% endif %}
+  </p>
+  <hr>
+
+  <!-- Comments section -->
+  <div>
+    <!-- Comment template -->
+      <!-- Add template after implementing comments -->
+
+    <!-- Add comment -->
+    <div class="mt-2 flex items-center">
+      <div class="flex-none h-10 w-10 border rounded-full mr-1">
+        {% with request.user as icon_user %}
+          {% include 'gallery/user_main_image_icon.html' %}
+        {% endwith %}
+      </div>
+      <div class="flex-auto">
+        <p class="p-2 pl-4 bg-gray-100 rounded-2xl text-gray-800">[WIP] Add comment form</p>
+      </div>
+      <div class="flex-none">
+        <button class="ml-1 py-2 px-3 bg-gray-200 hover:bg-gray-300 rounded-2xl text-gray-800">Add</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block image_control_buttons %}
+  {% if prev_image %}
+    <a href="{% url 'gallery:image_preview' image_id=prev_image.id post_type=post_type post_id=prev_image.post_id %}" class="p-2 rounded-md bg-white hover:bg-gray-200 border-2 border-black absolute left-2">PREV</a>
+  {% endif %}
+  {% if next_image %}
+    <a href="{% url 'gallery:image_preview' image_id=next_image.id post_type=post_type post_id=next_image.post_id %}" class="p-2 rounded-md bg-white hover:bg-gray-200 border-2 border-black absolute right-2">NEXT</a>
+  {% endif %}
+  <a href="{{ exit_url }}" class="size-8 md:size-10 absolute top-2 right-2">
+    <img src="{% static 'images/gallery_icons/close_button.png' %}">
+  </a>
+{% endblock %}
+
+
+{% block control_scripts %}
+  <script>
+    document.addEventListener('click', function(event) {
+      var dropdownButton = document.getElementById('dropdown-button');
+      var dropdownMenu = document.getElementById('dropdown-menu');
+
+      var isClickInsideButton = dropdownButton.contains(event.target);
+      var isClickInsideMenu = dropdownMenu.contains(event.target);
+
+      if (!isClickInsideButton && !isClickInsideMenu) {
+          dropdownMenu.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('dropdown-button').addEventListener('click', function() {
+      var dropdownMenu = document.getElementById('dropdown-menu');
+      dropdownMenu.classList.toggle('hidden');
+    });
+  </script>
+{% endblock %}

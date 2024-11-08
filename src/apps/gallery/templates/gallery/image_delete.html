@@ -1,0 +1,25 @@
+{% extends 'gallery/image_base_template.html' %}
+{% load static %}
+
+{% block title %} | Delete image{% endblock %}
+
+{% block navbar_content %}
+  <form method="POST" class="py-4">
+    {% csrf_token %}
+    {% if post_images_count == 1 %}
+      {% if is_album_image %}
+    <p class="pb-2"><b><u>WARNING</u></b>: This is the last photo in album "<u>{{ image.post.albums.all.0.title }}</u>". When you delete it, the post and album will become invisible for other users, but album will be still visible fo you in your gallery.</p>
+        <hr>
+      {% elif not image.post.text %}
+        <p class="pb-2"><b><u>WARNING</u></b>: This is the last photo in this post. When you delete it, the post will also be deleted.</p>
+        <hr>
+      {% endif %}
+    {% endif %}
+    <p class="pt-2">Do you really want to delete this photo?</p>
+    <p>Once you delete it, there is no turning back.</p>
+    <div class="flex py-4">
+      <button type="submit" class="w-full py-2 px-3 text-white font-bold bg-sky-700 hover:bg-sky-800 rounded-2xl text-gray-800">Yes</button>
+      <a href="{% url 'gallery:image_preview' image_id=image.id post_type=post_type post_id=image.post.id %}" class="w-full ml-2 py-2 px-3 text-white text-center font-bold bg-red-600 hover:bg-red-700 rounded-2xl text-gray-800">No</a>
+    </div>
+  </form>
+{% endblock %}

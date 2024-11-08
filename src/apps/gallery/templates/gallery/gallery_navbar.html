@@ -1,0 +1,49 @@
+{% load static %}
+<div class="pb-2 flex justify-between items-center">
+  <h1 class="text text-4xl text-sky-950 font-bold">Photos</h1>
+  {% if request.user == user %}
+    <form method="post" id="uploadForm" action="" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="id_image" class="px-3 py-2 rounded-md text-black font-bold bg-gray-300 hover:bg-gray-400">
+        Add Photos
+      </label>
+      <input type="file" multiple id="id_image" name="images" class="hidden">
+    </form>
+  {% endif %}
+</div>
+<div class="mb-2 bg-white rounded-b-xl text-center flex justify-between">
+  <div class="flex space-x-2 ">
+    <a href="{% url 'account:user_all_photos_view' site_url=user.site_url %}" class="w-24 py-2 rounded-md font-bold {% if not albums_page %} bg-gray-100 {% endif %} hover:bg-gray-200">
+      {% if user == request.user %}
+        My photos
+      {% else %}
+        All photos
+      {% endif %}
+    </a>
+    <a href="{% url 'account:user_albums_view' site_url=user.site_url %}" class="w-24 py-2 rounded-md font-bold {% if albums_page %} bg-gray-100 {% endif %} hover:bg-gray-200">Albums</a>
+  </div>
+  {% if user == request.user %}
+    {% if albums_page %}
+      <a href="{% url 'gallery:album_create' %}" class="w-36 py-2 rounded-md font-bold bg-orange-400 hover:bg-orange-500">
+        Add New Album
+      </a>
+    {% endif %}
+  {% endif %}
+</div>
+
+{% if user == request.user %}
+  <script>
+      // Function to automatically submit form and redirect
+      function handleFileInputChange() {
+          // Check if file input has any files selected
+          var input = document.getElementById('id_image');
+          if (input.files && input.files.length > 0) {
+              // Submit the form
+              document.getElementById('uploadForm').submit();
+          }
+      }
+
+      // Attach change event listener to the file input field
+      document.getElementById('id_image').addEventListener('change', handleFileInputChange);
+  </script>
+{% endif %}

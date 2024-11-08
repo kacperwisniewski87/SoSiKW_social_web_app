@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} | Access Denied{% endblock title %}
+
+{% block content %}
+  <div class="mx-auto mb-8 min-w-[450px] w-[450px] h-48 rounded-xl bg-red-600 border border-gray-200 border-2">
+    <div class="flex-col m-4 p-x-2 py-4 text-center space-y-2 justify-center bg-white">
+      <p class="text-2xl font-bold text-sky-950">You don't have access to this page!</p>
+      <p class="">Go back to previous page!</p>
+      <button onclick="history.back()" title="Go back" class="p-2 size-14 rounded-full border shadow-lg hover:shadow-inner">
+        <img src="{% static 'images/gallery_icons/go-back-arrow.png' %}" class="size-10">
+      </button>
+    </div>
+  </div>
+{% endblock %}

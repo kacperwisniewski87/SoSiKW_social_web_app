@@ -1,0 +1,41 @@
+{% load static %}
+
+<div class="p-4 mb-1 rounded-md bg-white border border-gray-200 border-2">
+  <div class="flex items-center">
+    <div class="flex-none size-14 border rounded-full mr-4">
+      {% with request.user as icon_user %}
+        {% include 'gallery/user_main_image_icon.html' %}
+      {% endwith %}
+    </div>
+    <form method="POST" id="uploadForm"  enctype="multipart/form-data" class="flex w-full">
+      {% csrf_token %}
+      <div class="flex-auto">
+        <textarea name="new_post_description" placeholder="New post" class="p-2 pl-4 w-full h-10 max-h-40 min-h-10 bg-gray-100 rounded-2xl text-gray-800"></textarea>
+      </div>
+      <div class="flex-none ml-2">
+        <div class="flex ">
+          <label for="id_image" title="Add photos" class="grid size-10 bg-gray-300 hover:bg-gray-400 rounded-full place-content-center">
+            <img src="{% static 'images/gallery_icons/camera.png' %}" class="size-7">
+          </label>
+          <input type="file" multiple id="id_image" name="images" class="hidden">
+          <button name="add_post" value="add_post" title="Add post" class="ml-2 py-2 px-3 bg-gray-300 hover:bg-gray-400 rounded-2xl text-gray-800">Add</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+    // Function to automatically submit form and redirect
+    function handleFileInputChange() {
+        // Check if file input has any files selected
+        var input = document.getElementById('id_image');
+        if (input.files && input.files.length > 0) {
+            // Submit the form
+            document.getElementById('uploadForm').submit();
+        }
+    }
+
+    // Attach change event listener to the file input field
+    document.getElementById('id_image').addEventListener('change', handleFileInputChange);
+</script>

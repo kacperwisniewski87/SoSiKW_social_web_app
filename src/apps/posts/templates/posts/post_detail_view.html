@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="mx-auto mb-8 min-w-[450px] w-[700px] h-full">
+    <div class="mb-1 rounded-md bg-white border border-gray-200 border-2">
+      <!-- Post header -->
+      <div class="flex p-4 justify-between">
+        <div class="flex items-center">
+          <a href="{% url 'account:profile_main_view' site_url=post.user.site_url %}" class="size-14 border rounded-full mr-4 hover:contrast-75">
+            {% with post.user as icon_user %}
+              {% include 'gallery/user_main_image_icon.html' %}
+            {% endwith %}
+          </a>
+          <div>
+            <a href="{% url 'account:profile_main_view' site_url=post.user.site_url %}" class="text text-xl font-bold hover:underline hover:underline-offset-3">{{ post.user.first_name }} {{ post.user.last_name }}</a>
+            <p class="text-xs">{{ post.published_date }}</p>
+          </div>
+        </div>
+        <div class="flex space-x-2">
+          <a href="{{ go_back_button_url }}" title="Go back" class="p-2 h-8 rounded-full border shadow-lg hover:shadow-inner">
+            <img src="{% static 'images/gallery_icons/go-back-arrow.png' %}" class="size-4">
+          </a>
+          {% if post.user == request.user %}
+            {% include 'posts/post_option_button_template.html' %}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Post content -->
+      <div class="px-4">
+        <p>{{ post.text }}</p>
+      </div>
+
+      <!-- Post images -->
+      {% if post.images.all %}
+        {% if post.images.all.count == 1 %}
+          <div class="pt-4 w-full">
+            <a href="{% url 'gallery:image_preview' image_id=post.images.all.0.id post_type='p' post_id=post.id %}" class="w-full flex justify-center bg-gray-300">
+              <img src="{{ post.images.all.0.image.url }}" class="border">
+            </a>
+          </div>
+        {% else %}
+          <div class="pt-4 w-full flex">
+            <div class="w-full grid grid-cols-2">
+              {% for image in post.images.all|dictsortreversed:"id" %}
+                <a href="{% url 'gallery:image_preview' image_id=image.id post_type='p' post_id=post.id %}">
+                  <div class="flex size-fit border border-gray-200">
+                    <img src="{{ image.image.url }}" class="aspect-square object-cover">
+                  </div>
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+
+      <!-- Comment section -->
+      <div class="p-4">
+        <hr>
+        <div class="mt-2 flex items-center">
+          <div class="flex-none h-10 w-10 border rounded-full mr-4">
+            {% with request.user as icon_user %}
+              {% include 'gallery/user_main_image_icon.html' %}
+            {% endwith %}
+          </div>
+          <div class="flex-auto">
+            <p class="p-2 pl-4 bg-gray-100 rounded-2xl text-gray-800">[WIP] Add comment form</p>
+          </div>
+          <div class="flex-none">
+            <button class="ml-2 py-2 px-3 bg-gray-200 hover:bg-gray-300 rounded-2xl text-gray-800">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

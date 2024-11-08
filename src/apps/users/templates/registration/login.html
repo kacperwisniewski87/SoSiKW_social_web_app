@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>SoSiKW | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between pt-8 md:p-4 md:pt-36">
+      <div class="min-w-72 mb-4 mx-auto md:mx-4">
+        <div class="w-72 h-64 mx-auto bg-sky-950 text-white rounded-xl p-4">
+          <h1 class="text-3xl">SoSiKW</h1>
+        </div>
+      </div>
+
+      <div class="w-[400px] bg-white rounded-xl p-4 mx-auto md:mx-4">
+        <div class="text-center pb-4">
+          <h1 class="text-3xl md:text-4xl">Log in</h1>
+        </div>
+
+        <form method="POST" action="." class="w-full mx-auto mb-4">
+          {% csrf_token %}
+
+          <div class="mb-2">
+            <input type="text" name="username" placeholder="E-mail" class="w-full mt-2 px-4 py-2 rounded-xl border border-gray-400">
+            {% if form.username.errors %}
+              <div class="mb-2 mt-2 px-4 py-2 rounded-xl bg-red-300">
+                {{ form.username.errors }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-2">
+            <input type="password" name="password" placeholder="Password" class="w-full mt-2 px-4 py-2 rounded-xl border border-gray-400">
+            {% if form.password.errors %}
+              <div class="mb-2 mt-2 px-4 py-2 rounded-xl bg-red-300">
+                {{ form.password.errors }}
+              </div>
+            {% endif %}
+          </div>
+          <div class="flex flex-col pt-2">
+            <button class="px-5 py-3 rounded-xl text-white font-bold bg-sky-950 hover:bg-sky-800">Login</button>
+            <p class="px-2 py-1"><a href="#" class="text font-bold hover:text-decoration-line: hover:underline">Forgot password?</a></p>
+          </div>
+          <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        </form>
+        <hr>
+        <div class="px-5 pt-10 pb-5">
+          <p>Don't have an account? <a href="{% url 'users:signup' %}" class="text font-bold hover:text-decoration-line: hover:underline">Sign in</a>.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

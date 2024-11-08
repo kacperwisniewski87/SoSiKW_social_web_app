@@ -1,0 +1,122 @@
+{% extends 'chat/base_chat_template.html' %}
+{% load static %}
+
+{% block innercontent %}
+  <div class="flex h-full">
+    <!--    Chat messages section    -->
+    <div class="w-full flex flex-col p-4">
+      {% if chat_with_user %}
+        <p class="text-3xl mb-2">Chat with {{ chat_with_user.first_name }} {{ chat_with_user.last_name }}</p>
+      {% else %}
+        <p class="text-3xl mb-2">Chat with deleted user</p>
+      {% endif %}
+      <hr>
+      <div id="chat-messages" class="chat-messages h-full mt-1 space-y-1 overflow-y-auto">
+        {% for message in messages %}
+          {% if message.user == request.user %}
+            <div class="p-2 pl-4 pr-4 rounded-xl text-right border border-gray-300 bg-gray-100">
+              <p class="font-semibold underline underline-offset-2">{{ message.user.first_name }} {{ message.user.last_name }}</p>
+              <p>{{ message.content }}</p>
+            </div>
+          {% else %}
+            <div class="p-2 pl-4 pr-4 rounded-xl border border-gray-300">
+              {% if not message.user %}
+                <p class="font-semibold text-gray-500 underline underline-offset-2">{{ message.user_name }} [Deleted]</p>
+              {% else %}
+                <p class="font-semibold underline underline-offset-2">{{ message.user.first_name }} {{ message.user.last_name }}</p>
+              {% endif %}
+              <p>{{ message.content }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <!--    Message input section    -->
+      {% if not chat_room.is_user_deleted %}
+        <div class="mt-4 p-2 bg-white rounded-xl border border-gray-500">
+          <form method="POST" action="." class="flex">
+            {% csrf_token %}
+            <input type="text" name="content" class="flex-1 mr-3" placeholder="Your message..." id="chat-message-input">
+            <button
+              class="px-5 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700"
+              id="chat-message-submit">
+              Send
+            </button>
+          </form>
+        </div>
+      {% else %}
+        <div class="mt-4 p-2 bg-white rounded-xl border border-gray-500">
+          <p class="p-2 text-center"><span class="text-sky-950 font-bold">{{ chat_room.name }}</span> has deleted account. You can't continue this conversation</p>
+        </div>
+      {% endif %}
+    </div>
+    <div class="h-full w-[2px] bg-gray-200"></div>
+    <!--    Chat info section    -->
+    <div class="min-w-[330px] max-w-[330px] p-4 relative">
+      {% if chat_room.is_group %}
+        <!--    Group chat info    -->
+        <div class="size-48 min-w-48 mx-auto rounded-lg border border-gray-300">
+          <img src="{% static 'images/gallery_icons/avatar-multiple-users.png' %}" class="size-fit aspect-square rounded-lg object-cover">
+        </div>
+        <div class="absolute top-4 right-4">
+          {% include 'chat/group_chat_option_button_template.html' %}
+        </div>
+        <p id="info-chat-name" class="w-full max-w-[300px] p-2 text-2xl text-center text-sky-950 font-bold">{{ chat_room.name }}</p>
+        <p class="py-2 font-bold text-xl underline">Chat members:</p>
+        <div id="group-chat-members-section" class="max-h-72 h-72 overflow-y-auto space-y-2">
+          {% for member in chat_users_data %}
+            <a href="{% url 'account:profile_main_view' member.user.site_url %}" id="chat-member-{{ member.user.id }}" class="flex space-x-1 items-center hover:text-sky-900">
+              <div class="size-8 min-w-8 rounded-full border border-gray-300">
+                {% with member.user as icon_user %}
+                  {% include 'gallery/user_main_image_icon.html' %}
+                {% endwith %}
+              </div>
+              <p class="font-bold max-w-80 text-sky-950">{{ member.user.first_name }} {{ member.user.last_name }} <span class="font-normal text-black">{% if member.is_friend %}(Is Friend){% endif %}</span></p>
+            </a>
+          {% endfor %}
+        </div>
+      <p class="text-md">Chat created at: <span class="font-bold">{{ chat_room.created_at|date:'Y-m-d' }}</span></p>
+      {% elif not user_deleted %}
+        <!--    One user chat info    -->
+        <a href="{% url 'account:profile_main_view' chat_with_user.site_url %}" class="hover:text-sky-950 hover:underline">
+          <div class="size-48 min-w-48 mx-auto rounded-lg border border-gray-300">
+            {% with chat_with_user as icon_user %}
+              {% include 'gallery/user_main_image_icon_square.html' %}
+            {% endwith %}
+          </div>
+          <p class="w-full p-2 text-2xl text-center font-bold">{{ chat_with_user.first_name }} {{ chat_with_user.last_name }}</p>
+        </a>
+        <p class="p-2 text-center"><span class="text-sky-950 font-bold">{{ chat_with_user.first_name }} {{ chat_with_user.last_name }}</span> {% if user_is_friend %}is your friend{% else %}is not your friend yet{% endif %}.</p>
+      {% else %}
+        <!--    Deleted user info    -->
+        <div class="size-48 min-w-48 mx-auto rounded-lg border border-gray-300">
+          <img src="{% static 'images/gallery_icons/avatar-default.png' %}" class="size-fit aspect-square rounded-lg object-cover">
+        </div>
+        <p class="w-full p-2 text-2xl text-center font-bold">{{ chat_room.name }}</p>
+        <p class="w-full p-2 text text-center underline">The user doesn't exist</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if not chat_room.is_user_deleted %}
+    {{ chat_room.uuid_url|json_script:"json-room_uuid" }}
+    {{ chat_room.id|json_script:"json-room_id" }}
+    {{ request.user.id|json_script:"json-userid" }}
+    {{ request.user.first_name|json_script:"json-userfirstname" }}
+    {{ request.user.last_name|json_script:"json-userlastname" }}
+    {% if chat_room.is_group %}
+      {{ chat_room.name|json_script:"json-room_name" }}
+      <p class="groupUrlDataContainer hidden"
+       data-chat-uuid="{{ chat_room.uuid_url }}"
+       data-add-friend-to-chat-url="chat/{{ chat_room.uuid_url }}/add"
+       data-rename-group-chat-url="chat/{{ chat_room.uuid_url }}/rename"
+       data-leave-group-chat-url="chat/{{ chat_room.uuid_url }}/leave"
+       data-no-chat-url="chat/r/"></p>
+      <script src="{% static 'js/apps/chat/group_chat_room_management.js' %}"></script>
+    {% else %}
+      {% with chat_with_user.first_name|add:" "|add:chat_with_user.last_name as chat_name %}
+        {{ chat_name|json_script:"json-room_name" }}
+      {% endwith %}
+    {% endif %}
+    <script src="{% static 'js/apps/chat/chat_message_management.js' %}"></script>
+  {% endif %}
+{% endblock innercontent %}

@@ -1,0 +1,86 @@
+{% load static %}
+
+<div class="mb-1 rounded-md bg-white border border-gray-200 border-2">
+  <!-- Post header -->
+  <div class="flex p-4 justify-between">
+    <div class="flex items-center">
+      <a href="{% url 'account:profile_main_view' site_url=post.user.site_url %}" class="size-14 border rounded-full mr-4 hover:contrast-75">
+        {% with post.user as icon_user %}
+          {% include 'gallery/user_main_image_icon.html' %}
+        {% endwith %}
+      </a>
+      <div>
+        <a href="{% url 'account:profile_main_view' site_url=post.user.site_url %}" class="text text-xl font-bold hover:underline hover:underline-offset-3">{{ post.user.first_name }} {{ post.user.last_name }}</a>
+        <p class="text-xs">{{ post.published_date }}</p>
+      </div>
+    </div>
+    {% include 'posts/post_option_button_template.html' %}
+  </div>
+
+  <!-- Post content -->
+  <div class="px-4">
+    <p>{{ post.text|truncatewords:50 }}</p>
+  </div>
+
+  <!-- Post images -->
+  {% if post.images.all %}
+    <div class="pt-4 w-full flex">
+      {% if post.images.all.count == 1 %}
+        <a href="{% url 'gallery:image_preview' image_id=post.images.all.0.id post_type='p' post_id=post.id %}" class="w-full">
+          <img src="{{ post.images.all.0.image.url }}" class="mx-auto h-[600px] bg-gray-500">
+        </a>
+      {% elif post.images.all.count > 1 and post.images.all.count < 5 %}
+        <div class="w-full grid grid-cols-2">
+          {% for image in post.images.all|dictsortreversed:"id" %}
+          <a href="{% url 'gallery:image_preview' image_id=image.id post_type='p' post_id=image.post.id %}">
+            <div class="flex size-fit border border-gray-200">
+              <img src="{{ image.image.url }}" class="aspect-square object-cover">
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="w-full grid grid-cols-2">
+          {% for image in post.images.all|dictsortreversed:"id"|slice:":4" %}
+            {% if not forloop.last %}
+              <a href="{% url 'gallery:image_preview' image_id=image.id post_type='p' post_id=image.post.id %}">
+                <div class="flex size-fit border border-gray-200">
+                  <img src="{{ image.image.url }}" class="aspect-square object-cover">
+                </div>
+              </a>
+            {% else %}
+              <a href="{% url 'posts:post_detail_view' post_id=post.id site_url=post.user.site_url %}">
+                <div class="flex size-fit border border-gray-200">
+                  <div class="relative flex">
+                    <img src="{{ image.image.url }}" class="aspect-square object-cover contrast-50">
+                    <div class="px-3 py-2 bg-gray-200 absolute end-0">
+                      <p class="text-xl">+ {{ post.images.all.count|add:"-3" }}</p>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- Comment section -->
+  <div class="p-4">
+    <hr>
+    <div class="mt-2 flex items-center">
+      <div class="flex-none h-10 w-10 border rounded-full mr-4">
+        {% with request.user as icon_user %}
+          {% include 'gallery/user_main_image_icon.html' %}
+        {% endwith %}
+      </div>
+      <div class="flex-auto">
+        <p class="p-2 pl-4 bg-gray-100 rounded-2xl text-gray-800">[WIP] Add comment form</p>
+      </div>
+      <div class="flex-none">
+        <button class="ml-2 py-2 px-3 bg-gray-200 hover:bg-gray-300 rounded-2xl text-gray-800">Add</button>
+      </div>
+    </div>
+  </div>
+</div>

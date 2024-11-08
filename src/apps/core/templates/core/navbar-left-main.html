@@ -1,0 +1,22 @@
+<div class="hidden xl:block min-w-72 overflow-y-auto text-2xl space-y-2">
+  <a href="{% url 'account:profile_main_view' site_url=request.user.site_url %}" class="flex rounded-md pl-4 py-3 border border-2 border-gray-200 hover:bg-gray-200">
+    Profile
+  </a>
+  <div class="flex relative items-center">
+  <a href="{% url 'account:friends_main_view' site_url=request.user.site_url %}" class="flex w-full justify-between rounded-md pl-4 py-3 border border-2 border-gray-200 hover:bg-gray-200 relative">
+    Friends
+  </a>
+  {% if awaiting_friends_requests %}
+    <a href="{% url 'friends:friends_requests_received_view' %}" title="Awaiting requests" class="size-10 rounded-full bg-red-700 hover:bg-red-600 text-white text-center content-center absolute right-3">
+      {{ awaiting_friends_requests }}
+    </a>
+  {% endif %}
+  </div>
+  <a href="{% url 'account:user_all_photos_view' site_url=request.user.site_url %}" class="flex rounded-md pl-4 py-3 border border-2 border-gray-200 hover:bg-gray-200">
+    Gallery
+  </a>
+  <a href="{% url 'chat:rooms_view' %}" class="flex rounded-md pl-4 py-3 border border-2 border-gray-200 hover:bg-gray-200">
+    Chat
+  </a>
+
+</div>

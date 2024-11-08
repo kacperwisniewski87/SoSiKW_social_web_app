@@ -1,0 +1,41 @@
+{% extends 'friends/base_friends_view.html' %}
+{% load static %}
+
+{% block title%} | Friends | Blocked users{% endblock title %}
+
+{% block page_scripts %}
+  <script src="{% static 'js/apps/friends/friendship_manage_requests.js' %}"></script>
+{% endblock page_scripts %}
+
+{% block innercontent %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <p class="urlDataContainer hidden"
+   data-block-user-remove="/friends/blocked/remove/"></p>
+  <div id="blocked-list-section" class="space-y-4">
+    {% if blocked_users %}
+      {% for blocked_user in blocked_users %}
+        <div class="blocked-user-container flex justify-between p-2 text lg:text-xl bg-gray-300 rounded-xl">
+          <div class="flex items-center">
+            <div class="size-10 border rounded-full bg-white">
+              {% with blocked_user as icon_user %}
+                {% include 'gallery/user_main_image_icon.html' %}
+              {% endwith %}
+            </div>
+            <div>
+              <p class="p-2"><span class="text-blue-950"><b>{{ blocked_user.first_name }} {{ blocked_user.last_name }}</b></span> was blocked.</p>
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button id="unblock-user-btn" data-user-id="{{ blocked_user.id }}" class="p-2 pl-5 pr-5 bg-red-500 text text-white rounded-xl hover:bg-red-600 hover:text-gray-200">
+              Unblock user
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="p-4 text lg:text-xl text-center bg-gray-300 rounded-xl">
+        <p>You did not blocked anyone.</p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock innercontent %}

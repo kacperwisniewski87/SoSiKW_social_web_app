@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} | {% if not post %}Create post{% else %}Edit post{% endif %}{% endblock title %}
+
+{% block content %}
+  <div class="mx-auto min-w-[450px] w-[700px] h-full overflow-y-auto">
+    <div class="py-2 px-4 mb-1 rounded-md bg-white border border-gray-200 border-2 w-fit mx-auto">
+      <div class="px-2 text-center">
+        <p class="font-bold text-lg">Do you really want to delete this post?</p>
+        <p class="text-lg">Once you delete it, there is no turning back.</p>
+      </div>
+      <form method="POST" class="flex pt-4 justify-center">
+        {% csrf_token %}
+        <button type="submit" class="w-1/2 py-2 px-3 text-white font-bold bg-sky-700 hover:bg-sky-800 rounded-2xl">
+          Delete
+        </button>
+        <a name="cancel" href="{{ previous_url }}" class="w-1/2 ml-2 py-2 px-3 text-white text-center font-bold bg-red-600 hover:bg-red-700 rounded-2xl">
+          Cancel
+        </a>
+      </form>
+    </div>
+    <div class="px-4 py-2 mb-1 rounded-md bg-white border border-gray-200 border-2">
+      <div class="flex px-4 py-2 justify-between">
+        <div class="flex items-center">
+          <div class="size-14 border rounded-full mr-4">
+            {% with request.user as icon_user %}
+              {% include 'gallery/user_main_image_icon.html' %}
+            {% endwith %}
+          </div>
+          <div>
+            <p class="text text-xl font-bold">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+            <p class="text-xs">{{ post.published_date }}</p>
+          </div>
+        </div>
+      </div>
+      <p class="w-full py-2">{% if post.text %}{{ post.text }}{% endif %}</p>
+
+      <div id="image-section" class="w-full py-2 grid grid-cols-4 gap-2 items-center justify-items-center">
+        {% if post_images %}
+          {% for image in post_images %}
+            <div class="image-container place-content-center flex border border-gray-400 bg-gray-400">
+              <img src="{{ image.image.url }}" class="max-h-60 ">
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

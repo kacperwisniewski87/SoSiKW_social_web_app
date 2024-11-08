@@ -1,0 +1,16 @@
+{% extends 'gallery/image_base_template.html' %}
+{% load static %}
+
+{% block title %} | Edit image{% endblock %}
+
+{% block navbar_content %}
+  <form method="POST" class="py-4">
+    {% csrf_token %}
+    <textarea name="description" placeholder="Image description (optional)" class="p-2 w-full min-h-24 max-h-80 bg-gray-100 rounded-2xl text-gray-800">{% if image_description %}{{ image_description }}{% endif %}</textarea>
+
+    <div class="flex py-4">
+      <button type="submit" class="w-3/4 py-2 px-3 text-white font-bold bg-sky-700 hover:bg-sky-800 rounded-2xl text-gray-800">Save</button>
+      <a href="{% url 'gallery:image_preview' image_id=image.id post_type=post_type post_id=image.post.id %}" class="w-1/4 ml-2 py-2 px-3 text-white text-center font-bold bg-red-600 hover:bg-red-700 rounded-2xl text-gray-800">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

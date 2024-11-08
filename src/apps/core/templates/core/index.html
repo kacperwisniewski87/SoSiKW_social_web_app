@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %} | Main page{% endblock title %}
+
+{% block content %}
+<div class="fixed inset-0 mt-16">
+  <div class="flex space-x-2 justify-between p-2 h-full">
+
+    <!-- Left navbar -->
+    {% include 'core/navbar-left-main.html' %}
+
+    <!-- Post section -->
+    <div class="mx-auto min-w-[450px] w-[700px] h-full overflow-y-auto">
+      <!-- New post initial form -->
+      {% include 'posts/post_initial_creation_form.html' %}
+
+      <!-- Posts preview -->
+      {% for post in posts %}
+        {% include 'posts/post_main_summary_view.html' %}
+      {% endfor %}
+
+    </div>
+
+    <!-- Right navbar -->
+    {% include 'core/navbar-right-main.html' %}
+
+  </div>
+</div>
+{% endblock content %}

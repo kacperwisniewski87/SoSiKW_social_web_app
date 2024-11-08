@@ -1,0 +1,14 @@
+<!-- user_main_image_icon.html -->
+{% load static %}
+
+{% if icon_user.data.profile_image %}
+  <img src="{{ icon_user.data.profile_image.image.url }}" class="size-fit aspect-square rounded-lg object-cover">
+{% else %}
+  {% if icon_user.data.gender == 'male' %}
+    <img src="{% static 'images/gallery_icons/avatar-male.png' %}" class="size-fit aspect-square rounded-lg object-cover">
+  {% elif icon_user.data.gender == 'female' %}
+    <img src="{% static 'images/gallery_icons/avatar-female.png' %}" class="size-fit aspect-square rounded-lg object-cover">
+  {% else %}
+    <img src="{% static 'images/gallery_icons/avatar-default.png' %}" class="size-fit aspect-square rounded-lg object-cover">
+  {% endif %}
+{% endif %}

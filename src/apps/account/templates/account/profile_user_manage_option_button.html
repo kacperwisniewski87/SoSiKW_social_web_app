@@ -1,0 +1,42 @@
+{% load static %}
+
+<div class="relative inline-block">
+  <button id="dropdown-button-profile-{{ user.id }}" type="button" title="Options">
+    <img src="{% static 'images/gallery_icons/dots.png' %}" class="aspect-square rounded-lg object-cover size-8 md:size-10 border shadow-lg hover:shadow-inner">
+  </button>
+  <div id="dropdown-menu-profile-{{ user.id }}" class="hidden flex flex-col w-48 absolute z-[1] right-0 mt-1 rounded-md border border-gray-300 bg-white shadow-md">
+    {% if user == request.user %}
+      <a href="#" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">[WIP] Edit profile</a>
+    {% else %}
+      <button id="block-hud-open-btn" data-site-url="{{ user.site_url }}" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+        Block user
+      </button>
+    {% endif %}
+    {% if is_friend %}
+      <hr id="separating-hr">
+      <button id="delete-hud-open-btn" data-site-url="{{ user.site_url }}" class="w-full text-left px-2 py-1 rounded-md cursor-pointer hover:bg-gray-100">
+        Remove from friends
+      </button>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('click', function(event) {
+    var dropdownButton = document.getElementById('dropdown-button-profile-{{ user.id }}');
+    var dropdownMenu = document.getElementById('dropdown-menu-profile-{{ user.id }}');
+
+    var isClickInsideButton = dropdownButton.contains(event.target);
+    var isClickInsideMenu = dropdownMenu.contains(event.target);
+
+    if (!isClickInsideButton && !isClickInsideMenu) {
+        dropdownMenu.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('dropdown-button-profile-{{ user.id }}').addEventListener('click', function() {
+    var dropdownMenu = document.getElementById('dropdown-menu-profile-{{ user.id }}');
+    dropdownMenu.classList.toggle('hidden');
+    console.log('dropdown btn pressed');
+  });
+</script>

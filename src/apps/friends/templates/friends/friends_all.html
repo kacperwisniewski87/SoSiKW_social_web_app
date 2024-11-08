@@ -1,0 +1,55 @@
+{% extends 'friends/base_friends_view.html' %}
+{% load static %}
+
+{% block title%} | Friends{% endblock title %}
+
+{% block page_scripts %}
+  <script src="{% static 'js/apps/friends/friendship_manage_requests.js' %}"></script>
+{% endblock page_scripts %}
+
+{% block innercontent %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <p class="urlDataContainer hidden"
+   data-friends-data-json="{{ user_friends_json }}"
+   data-block-user-add="/friends/blocked/add/all/"
+   data-remove-friend="/friends/remove/"
+   data-url-avatar-male="{% static 'images/gallery_icons/avatar-male.png' %}"
+   data-url-avatar-female="{% static 'images/gallery_icons/avatar-female.png' %}"
+   data-url-avatar-default="{% static 'images/gallery_icons/avatar-default.png' %}"></p>
+  <div id="friends-list-section" class="w-full">
+    {% if user_friends %}
+      <div class="grid grid-cols-6 gap-2">
+        {% for friend in user_friends %}
+          <div id="friend-container-{{ friend.id }}" class="friend-request-container w-full relative">
+            <a href="{% url 'account:profile_main_view' friend.site_url %}" class="w-full hover:underline hover:underline-offset-2">
+              <div class="aspect-square rounded-xl border-2">
+                {% with friend as icon_user %}
+                  {% include 'gallery/user_main_image_icon_square.html' %}
+                {% endwith %}
+              </div>
+              <p class="p-1 font-bold">{{ friend.first_name }} {{ friend.last_name }}</p>
+            </a>
+            <button data-user-id="{{ friend.id }}" title="Remove from friends" class="delete-user-btn absolute top-1 right-1">
+              <img src="{% static 'images/gallery_icons/remove_button.png' %}" class="size-8">
+            </button>
+            <button data-user-id="{{ friend.id }}" title="Block user" class="block-user-btn absolute top-1 right-11">
+              <img src="{% static 'images/gallery_icons/block_button.png' %}" class="size-8">
+            </button>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="p-4 text lg:text-xl text-center bg-gray-300 rounded-xl">
+        <p>You do not have friends.</p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock innercontent %}
+
+{% block modal_message %}
+  <div id="curtain-screen" class="w-full h-full z-10 bg-gray-600 opacity-50 absolute top-0 left-0 hidden">
+  </div>
+
+  <div id="remove-user-confirm-message" class="hidden z-20 min-w-[450px] w-[700px] p-6 rounded-2xl bg-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+  </div>
+{% endblock modal_message %}

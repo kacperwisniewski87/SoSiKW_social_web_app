@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+
+{% block content %}
+  <div class="flex w-full">
+    <!--  friends menu navbar  -->
+    <div class="min-w-[280px] m-2 p-4 h-fit max-h-[1200px] rounded-lg bg-white border border-gray-200">
+      <p class="pb-4 text-2xl text-sky-950 font-bold">Friends management</p>
+      <div class="flex flex-col space-y-3">
+        <a href="{% url 'friends:friends_all_view' %}"
+           class="w-full py-2 px-3 rounded-xl text-xl border font-bold {% if is_all_section %}bg-sky-950 text-white{% else %}bg-gray-100 hover:bg-gray-400{% endif %}">My friends</a>
+        <a id="requests-count-main-tag" href="{% url 'friends:friends_requests_received_view' %}"
+           class="flex w-full py-2 px-3 rounded-xl text-xl border font-bold items-center relative {% if is_request_section %}bg-sky-950 text-white{% else %}bg-gray-100 hover:bg-gray-400{% endif %}">
+          Friendship requests
+          {% if not is_request_section and awaiting_requests_count %}
+            <p id="requests-count-inner-tag" class="size-9 p-1 bg-red-600 rounded-full text-center text-white content-center absolute right-1" title="Unanswered friend requests">{{ awaiting_requests_count }}</p>
+          {% endif %}
+        </a>
+        {% if is_request_section %}
+          <div class="flex flex-col space-y-3 ml-12">
+            <a href="{% url 'friends:friends_requests_received_view' %}"
+               class="flex w-full py-2 px-3 rounded-xl text-xl font-bold border items-center relative {% if is_received_section %}bg-sky-700 text-white{% else %}bg-gray-200 hover:bg-gray-400{% endif %}">
+              Received
+              {% if awaiting_requests_count %}
+                <p id="requests-count-tag" class="size-9 p-1 bg-red-600 rounded-full text-center text-white content-center absolute right-1" title="Unanswered friend requests">{{ awaiting_requests_count }}</p>
+              {% endif %}
+            </a>
+            <a href="{% url 'friends:friends_requests_sent_view' %}"
+               class="w-full py-2 px-3 rounded-xl text-xl font-bold border {% if is_sent_section %}bg-sky-700 text-white{% else %}bg-gray-200 hover:bg-gray-400{% endif %}">Sent</a>
+            <a href="{% url 'friends:friends_requests_rejected_view' %}"
+               class="w-full py-2 px-3 rounded-xl text-xl font-bold border {% if is_rejected_section %}bg-sky-700 text-white{% else %}bg-gray-200 hover:bg-gray-400{% endif %}">Rejected</a>
+          </div>
+        {% endif %}
+        <a href="{% url 'friends:blocked_users_view' %}" class="w-full py-2 px-3 rounded-xl text-xl border font-bold {% if is_blocked_section %}bg-sky-950 text-white{% else %}bg-gray-100 hover:bg-gray-400{% endif %}">Blocked users</a>
+        <a href="{% url 'friends:friends_search_view' %}" class="w-full py-2 px-3 rounded-xl text-xl border font-bold {% if is_friends_search_section %}bg-sky-950 text-white{% else %}bg-orange-400 hover:bg-orange-500{% endif %}">Find new friend</a>
+      </div>
+    </div>
+    <!--  Main content  -->
+    <div class="w-full m-2 p-4 rounded-lg bg-white border border-gray-200">
+      {% block innercontent %}
+      {% endblock innercontent %}
+    </div>
+  </div>
+{% endblock content %}

@@ -1,0 +1,41 @@
+{% extends 'account/profile_base.html' %}
+{% load static %}
+
+{% block innercontent %}
+  <div class="flex w-full justify-between space-x-2">
+    <div class="w-[390px] min-w-[300px] p-4 h-fit max-h-[1200px] rounded-lg hidden md:block bg-white border border-gray-200">
+      <div class="p-2 space-y-2">
+        <p class="text-lg text-sky-950 font-bold">Info</p>
+        <p><span class="font-bold">Bio:</span> {% if user.data.bio %}{{ user.data.bio|truncatewords:35 }}{% else %}-{% endif %}</p>
+        <p><span class="font-bold">Place of living:</span> {% if user.data.place_of_live %}{{ user.data.place_of_live|capfirst }}{% else %}-{% endif %}</p>
+        <p><span class="font-bold">Occupation:</span> {% if user.data.occupation %}{{ user.data.occupation|capfirst }}{% else %}-{% endif %}</p>
+        <a href="{% url 'account:profile_info_view' user.site_url %}" class="hover:font-bold hover:text-sky-950">...</a>
+      </div>
+      <hr>
+      <div class="p-2 space-y-2">
+        <p class="text-lg text-sky-950 font-bold">Photos</p>
+        <div class="grid grid-cols-3 gap-1">
+          {% for image in images %}
+            <a href="{% url 'gallery:image_preview' image_id=image.id post_type='p' post_id=image.post.id %}">
+              <div class="flex p-1 size-fit border border-gray-200 rounded-xl">
+                <img src="{{ image.image.url }}" class="aspect-square object-cover">
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+        <a href="{% url 'account:user_all_photos_view' user.site_url %}" class="hover:font-bold hover:text-sky-950">Show more...</a>
+      </div>
+    </div>
+    <div class="min-w-[450px] w-[700px] h-full overflow-y-auto">
+      <!-- New post initial form -->
+      {% if user == request.user %}
+        {% include 'posts/post_initial_creation_form.html' %}
+      {% endif %}
+
+      <!-- Posts preview -->
+      {% for post in posts %}
+        {% include 'posts/post_main_summary_view.html' %}
+      {% endfor %}
+    </div>
+  </div>
+{% endblock innercontent %}
